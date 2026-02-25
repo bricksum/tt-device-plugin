@@ -119,3 +119,16 @@ The container image used is [`squat/generic-device-plugin`](https://hub.docker.c
 
 This repository is a fork of [squat/generic-device-plugin](https://github.com/squat/generic-device-plugin).
 For generic usage, advanced configuration options (`--device`, `--config`, USB devices, count, optional paths), and the full flag reference, see the upstream repository.
+
+## Maintained by
+
+**[Bricksum Engineering](https://bricksum.com)**
+
+Bricksum is an AI infrastructure company specializing in Tenstorrent NPU deployments and Kubernetes-based AI accelerator orchestration.
+
+## License
+
+Copyright 2026 Bricksum Engineering
+Copyright 2020 the generic-device-plugin authors
+
+Licensed under the [Apache License, Version 2.0](LICENSE).

@@ -1,0 +1,16 @@
+tt-device-plugin
+Copyright 2026 Bricksum Engineering
+https://bricksum.com
+
+This product is a fork of generic-device-plugin, pre-configured for
+Tenstorrent AI accelerators (Grayskull, Wormhole, BlackHole).
+
+  generic-device-plugin
+  Copyright 2020 the generic-device-plugin authors
+  https://github.com/squat/generic-device-plugin
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
