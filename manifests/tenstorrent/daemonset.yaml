@@ -1,15 +1,25 @@
-# Tenstorrent N300S Device Plugin for Kubernetes
+# Tenstorrent Device Plugin for Kubernetes
+# Based on: https://github.com/squat/generic-device-plugin
 #
-# 리소스 이름: bricksum.ai/n300s
-#   - N300S 카드 1장 단위로 할당 (Wormhole L+R 2칩 포함)
-#   - /dev/tenstorrent/0~3 각각이 카드 1장에 대응
-#   - 총 4장 할당 가능
+# Exposes Tenstorrent AI accelerators to Kubernetes workloads via
+# the standard Kubernetes Device Plugin API.
 #
-# Pod에서 사용 예:
+# Supported hardware:
+#   - Grayskull  (e75, e150)       — 1 chip per /dev/tenstorrent/N
+#   - Wormhole   (n150)            — 1 chip per /dev/tenstorrent/N
+#   - Wormhole   (n300, n300s)     — 1 card (2 chips, L+R) per /dev/tenstorrent/N
+#   - BlackHole  (p100, p150)      — 1 chip per /dev/tenstorrent/N
+#
+# Kubernetes resource: tenstorrent.com/device
+#   One unit = one /dev/tenstorrent/N device file.
+#   Supports up to 8 devices per node (slots 0–7).
+#   Slots for non-existent device files are automatically excluded.
+#
+# Usage in Pod spec:
 #   resources:
 #     limits:
-#       bricksum.ai/n300s: "1"   # N300S 카드 1장 (2 Wormhole chips)
-#       bricksum.ai/n300s: "2"   # N300S 카드 2장 (4 Wormhole chips)
+#       tenstorrent.com/device: "1"   # 1 Tenstorrent device
+#       tenstorrent.com/device: "4"   # 4 Tenstorrent devices
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -39,10 +49,10 @@ spec:
         name: tt-device-plugin
         args:
         - --domain
-        - bricksum.ai
+        - tenstorrent.com
         - --device
         - |
-          name: n300s
+          name: device
           groups:
             - paths:
                 - path: /dev/tenstorrent/0
@@ -52,6 +62,14 @@ spec:
                 - path: /dev/tenstorrent/2
             - paths:
                 - path: /dev/tenstorrent/3
+            - paths:
+                - path: /dev/tenstorrent/4
+            - paths:
+                - path: /dev/tenstorrent/5
+            - paths:
+                - path: /dev/tenstorrent/6
+            - paths:
+                - path: /dev/tenstorrent/7
         resources:
           requests:
             cpu: 50m
