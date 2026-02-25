@@ -1,0 +1,80 @@
+# Tenstorrent N300S Device Plugin for Kubernetes
+#
+# 리소스 이름: bricksum.ai/n300s
+#   - N300S 카드 1장 단위로 할당 (Wormhole L+R 2칩 포함)
+#   - /dev/tenstorrent/0~3 각각이 카드 1장에 대응
+#   - 총 4장 할당 가능
+#
+# Pod에서 사용 예:
+#   resources:
+#     limits:
+#       bricksum.ai/n300s: "1"   # N300S 카드 1장 (2 Wormhole chips)
+#       bricksum.ai/n300s: "2"   # N300S 카드 2장 (4 Wormhole chips)
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tt-device-plugin
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: tt-device-plugin
+    app.kubernetes.io/component: device-plugin
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tt-device-plugin
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tt-device-plugin
+        app.kubernetes.io/component: device-plugin
+    spec:
+      priorityClassName: system-node-critical
+      tolerations:
+      - operator: "Exists"
+        effect: "NoExecute"
+      - operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - image: squat/generic-device-plugin:latest
+        name: tt-device-plugin
+        args:
+        - --domain
+        - bricksum.ai
+        - --device
+        - |
+          name: n300s
+          groups:
+            - paths:
+                - path: /dev/tenstorrent/0
+            - paths:
+                - path: /dev/tenstorrent/1
+            - paths:
+                - path: /dev/tenstorrent/2
+            - paths:
+                - path: /dev/tenstorrent/3
+        resources:
+          requests:
+            cpu: 50m
+            memory: 10Mi
+          limits:
+            cpu: 50m
+            memory: 20Mi
+        ports:
+        - containerPort: 8080
+          name: http
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: device-plugin
+          mountPath: /var/lib/kubelet/device-plugins
+        - name: dev
+          mountPath: /dev
+      volumes:
+      - name: device-plugin
+        hostPath:
+          path: /var/lib/kubelet/device-plugins
+      - name: dev
+        hostPath:
+          path: /dev
+  updateStrategy:
+    type: RollingUpdate
